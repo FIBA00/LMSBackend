@@ -1,0 +1,6 @@
+ id |         email         |         created_at         |   phone    |                        password_hash                         |  username   | role  | token_version 
+----+-----------------------+----------------------------+------------+--------------------------------------------------------------+-------------+-------+---------------
+  1 | fraolbulti0@gmail.com | 2026-08-07 21:51:28.090129 | 0919545063 | $2b$10$AmE7kfO3bNChYpmfBE0Npe0hN3jcVF/1SGiGPnSLwM/BUAIKyjQti | Fraol Bulti | user  |             0
+  7 | fraolbulti1@gmail.com | 2026-08-07 23:14:15.211826 | 0919545063 | $2b$10$sM4UZ8mKOc84LVq79RID7.tA9z1vvP0.5keinvcYnjsjNjdvG.myW | fraold      | admin |             0
+(2 rows)
+
