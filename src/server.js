@@ -6,7 +6,7 @@ import process from "node:process";
 
 // internal imports
 import "./configs/env.config.js";
-import registerRoutes from "./routes/main.js";
+import registerRoutes from "./routes/main.route.js";
 import registerAdminRoutes from "./admin/admin.js";
 
 const app = express();
