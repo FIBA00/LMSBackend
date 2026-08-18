@@ -6,11 +6,14 @@ import process from "node:process";
 import * as model from "./models.js";
 import "../configs/env.config.js";
 
-const DATABASE_URL = process.env.DATABASE_URL;
+const DB_URL = process.env.DATABASE_URL;
 
+
+// create new database pull using connection string or construct from env 
 const pool = new Pool({
-	connectionString: DATABASE_URL,
+	connectionString: DB_URL,
+
 });
 const db = drizzle(pool, { model });
 
-export { DATABASE_URL, db };
+export { DB_URL, db };

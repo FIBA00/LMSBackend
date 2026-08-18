@@ -12,7 +12,7 @@ import registerAdminRoutes from "./admin/admin.js";
 const app = express();
 const PORT = process.env.PORT;
 
-app.user(
+app.use(
 	cors({
 		origin: process.env.CLIENT_URL, // e.g. "http://localhost:5173" — must be explicit, not "*"
 		credentials: true,
