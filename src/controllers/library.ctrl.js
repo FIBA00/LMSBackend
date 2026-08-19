@@ -1,6 +1,6 @@
 // backend/src/controllers/library.ctrl.js
 
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 // internal imports
 import { db } from "../db/database.js";
@@ -111,31 +111,23 @@ export async function createUserLibrary(req, res) {
 }
 
 export async function updateUserLibrary(req, res) {
-	try {
-		const userId = req.user.id;
-		const libraryId = req.params.id;
+    try {
+        const userId = req.user.id;
+        const libraryId = req.params.id;
 
-		const [library] = await db
-			.update(libraries)
-			.set({
-				name: req.body.name,
-				address: req.body.address,
-			})
-			.where(eq(libraries.id, libraryId), eq(libraries.ownerId, userId))
-			.returning();
+        const [library] = await db
+            .update(libraries)
+            .set({ name: req.body.name, address: req.body.address })
+            .where(and(eq(libraries.id, libraryId), eq(libraries.ownerId, userId)))
+            .returning();
 
-		if (!library) {
-			return res.status(404).json({
-				success: false,
-				message: "Library not found or not owned by you !.",
-			});
-		}
+        if (!library) {
+            return res.status(404).json({ success: false, message: "Library not found or not owned by you !." });
+        }
 
-		return res.status(200).json({
-			success: true,
-			message: "Successfully updated library.",
-			libraryInfo: library,
-		});
+
+		return res.status(200).json({ success: true, message: "Successfully updated library.", data: library });
+
 	} catch (error) {
 		console.error("error while managing library: ", error.message);
 		return res.status(500).json({
@@ -156,17 +148,9 @@ export async function deleteUserLibrary(req, res) {
 			.where(eq(libraries.id, libraryId));
 
 		if (!library) {
-			[];
 			return res.status(404).json({
 				success: false,
 				message: "Library not found !.",
-			});
-		}
-
-		if (library.ownerId !== userId && req.user.role !== "admin") {
-			return res.status(403).json({
-				success: false,
-				message: "Forbidden !.",
 			});
 		}
 

@@ -1,5 +1,5 @@
 import express from "express";
-import { isAdmin, isLoggedIn } from "../../middlewares/auth.middleware.js";
+import {  isLoggedIn, requireRole, } from "../../middlewares/auth.middleware.js";
 import {
 	getAllLibrary,
 	getLibrary,
@@ -8,15 +8,17 @@ import {
 	deleteLibrary,
 	rejectLibrary,
 } from "./library.admin.ctrl.js";
-
+import {LibraryResponse, LibraryListResponse } from "../../schemas/library.schema.js"
+import respondWith from "../../middlewares/response.middleware.js"
 const adminLibraryRoute = express.Router();
 
 // adming routes
-adminLibraryRoute.get("/", isLoggedIn, isAdmin, getAllLibrary);
-adminLibraryRoute.get("/:id", isLoggedIn, isAdmin, getLibrary);
-adminLibraryRoute.post("/approve/:id", isLoggedIn, isAdmin, approveLibrary);
-adminLibraryRoute.post("/suspend/:id", isLoggedIn, isAdmin, suspendLibrary);
-adminLibraryRoute.post("/reject/:id", isLoggedIn, isAdmin, rejectLibrary);
-adminLibraryRoute.delete("/:id", isLoggedIn, isAdmin, deleteLibrary);
+adminLibraryRoute.get("/", isLoggedIn, requireRole("admin"), respondWith(LibraryListResponse), getAllLibrary);
+adminLibraryRoute.get("/:id", isLoggedIn, requireRole("admin"), respondWith(LibraryResponse), getLibrary);
+adminLibraryRoute.post("/approve/:id", isLoggedIn, requireRole("admin"), respondWith(LibraryResponse), approveLibrary);
+adminLibraryRoute.post("/suspend/:id", isLoggedIn, requireRole("admin"), respondWith(LibraryResponse), suspendLibrary);
+adminLibraryRoute.post("/reject/:id", isLoggedIn, requireRole("admin"), respondWith(LibraryResponse), rejectLibrary);
+adminLibraryRoute.delete("/:id", isLoggedIn, requireRole("admin"), respondWith(LibraryResponse), deleteLibrary);
+
 
 export default adminLibraryRoute;

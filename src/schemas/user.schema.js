@@ -17,9 +17,11 @@ export const UserCreate = z
 	});
 
 export const UserProfile = z.object({
-	username: z.string().trim().min(1, "User name is required !."),
-	email: z.string().trim().email("Enter a valid email"),
-	phone: z.string().trim().min(10, "Enter valid phone number."),
+    id: z.string(),  // your users.id is UUID (string), not a number — see below
+    username: z.string().trim().min(1, "User name is required !."),
+    role: z.string().trim().min(1, "User name is required !."),
+    email: z.string().trim().email("Enter a valid email"),
+    phone: z.string().trim().min(10, "Enter valid phone number."),
 });
 
 export const UserLogin = z.object({
@@ -28,13 +30,12 @@ export const UserLogin = z.object({
 });
 
 export const UserResponse = z.object({
-	id: z.number(),
-	username: z.string().trim().min(5),
-	email: z.string().trim().email().min(5),
-	phone: z.string().trim().min(8),
-	role: z.string().trim(),
+    id: z.string(),
+    username: z.string().trim().min(5),
+    email: z.string().trim().email().min(5),
+    phone: z.string().trim().min(8),
+    role: z.string().trim(),
 });
-
 function checkPasswordsMatch({ password, confirmPassword }) {
 	return password === confirmPassword;
 }
