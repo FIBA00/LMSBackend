@@ -10,6 +10,19 @@ import { users } from "../db/models.js";
 
 const SECRET = process.env.JWT_SECRET;
 
+export function setAuthCookie(res, token) {
+	res.cookie("accessToken", token, {
+		httpOnly: true,
+		secure: process.env.NODE_ENV === "production",
+		sameSite: "lax",
+		maxAge: 2 * 60 * 60 * 1000, // 2h
+	});
+}
+
+export function clearAuthCookie(res) {
+	res.clearCookie("accessToken")
+}
+
 export function generateToken(user) {
 	try {
 		return jwt.sign(
@@ -64,11 +77,12 @@ export async function isLoggedIn(req, res, next) {
 				.status(401)
 				.json({ success: false, message: "Invalid token provided." });
 		}
-		const token = authHeader.split(" ")[1];
+		
+		const token = req.cookies?.accessToken;
 		if (!token) {
 			return res
 				.status(401)
-				.json({ success: false, message: "Invalid token provided" });
+				.json({ success: false, message: "No token provided" });
 		}
 		try {
 			const currentUser = await authenticateToken(token);

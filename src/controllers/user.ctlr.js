@@ -5,6 +5,7 @@ import bcrypt from "bcrypt";
 import {
 	generateToken,
 	comparePassword,
+	setAuthCookie
 } from "../middlewares/auth.middleware.js";
 
 export async function userProfile(req, res) {
@@ -78,11 +79,10 @@ export async function userSignup(req, res) {
 
 		console.debug("New user: ", newUser);
 		const Token = generateToken(newUser);
-
+		setAuthCookie(res, Token)
 		return res.status(201).json({
 			success: true,
 			message: "User registered successfully.",
-			bearerToken: Token,
 			user: {
 				userId: newUser.id,
 				userPhone: newUser.phone,
@@ -153,11 +153,10 @@ export async function userLogin(req, res) {
 		}
 
 		const Token = generateToken(user);
-
+		setAuthCookie(res, Token)
 		return res.status(200).json({
 			success: true,
 			message: "User Logged in succesfully !.",
-			bearerToken: Token,
 			user: {
 				id: user.id,
 				username: user.username,
@@ -179,6 +178,8 @@ export async function userLogin(req, res) {
 export async function userUpdate(req, res) {
 	try {
 		const { username } = req.body;
+		const userId = req.body.id;
+
 		// TODO: implementswor email verification where updating.
 		if (!username) {
 			return res.status(400).json({
@@ -190,7 +191,7 @@ export async function userUpdate(req, res) {
 		const [userid] = await db
 			.select()
 			.from(users)
-			.where(eq(users.id, req.body.id));
+			.where(eq(users.id, userId));
 
 		if (!userid) {
 			return res.status(400).json({
@@ -202,7 +203,7 @@ export async function userUpdate(req, res) {
 		const [user] = await db
 			.update(users)
 			.set({ username: username })
-			.where(eq(users.id, req.body.id))
+			.where(eq(users.id, userId))
 			.returning();
 
 		console.log("User object from DB:", user); // Look closely at the keys here!
