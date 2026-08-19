@@ -1,10 +1,10 @@
 import express from "express";
-import { isAdmin, isLoggedIn } from "../../middlewares/auth.middleware.js";
+import {  isLoggedIn,  requireRole } from "../../middlewares/auth.middleware.js";
 import { getAllUser, updateUserProfile } from "./user.admin.ctrl.js";
 
 const adminUserRoute = express.Router();
 
-adminUserRoute.get("/", isLoggedIn, isAdmin, getAllUser);
-adminUserRoute.patch("/:id", isLoggedIn, isAdmin, updateUserProfile);
+adminUserRoute.get("/", isLoggedIn,  requireRole("admin"), getAllUser);
+adminUserRoute.patch("/:id", isLoggedIn,requireRole("admin"), updateUserProfile);
 
 export default adminUserRoute;

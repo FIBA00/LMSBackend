@@ -70,49 +70,40 @@ export async function authenticateToken(token) {
 }
 
 export async function isLoggedIn(req, res, next) {
-	try {
-		const authHeader = req.headers.authorization;
-		if (!authHeader) {
-			return res
-				.status(401)
-				.json({ success: false, message: "Invalid token provided." });
-		}
-		
-		const token = req.cookies?.accessToken;
-		if (!token) {
-			return res
-				.status(401)
-				.json({ success: false, message: "No token provided" });
-		}
-		try {
-			const currentUser = await authenticateToken(token);
-			if (!currentUser) {
-				return res.status(401).json({
-					success: false,
-					message: "Invalid or expired token.",
-				});
-			}
-			req.user = currentUser;
-			console.debug("Current user: ", req.user);
-			return next();
-		} catch (error) {
-			if (error.name === "TokenExpiredError") {
-				return res.status(401).json({
-					success: false,
-					message: "Token expired.",
-				});
-			}
-			console.log("Error while checking auth token: ", error.message);
-			return res.status(401).json({
-				success: false,
-				message: "No token provided.",
-			});
-		}
-	} catch (error) {
-		console.log("Error while checking user is logged in: ", error.message);
-	}
+    try {
+        const token = req.cookies?.accessToken;
+        if (!token) {
+            return res
+                .status(401)
+                .json({ success: false, message: "No token provided" });
+        }
+        try {
+            const currentUser = await authenticateToken(token);
+            if (!currentUser) {
+                return res.status(401).json({
+                    success: false,
+                    message: "Invalid or expired token.",
+                });
+            }
+            req.user = currentUser;
+            return next();
+        } catch (error) {
+            if (error.name === "TokenExpiredError") {
+                return res.status(401).json({
+                    success: false,
+                    message: "Token expired.",
+                });
+            }
+            console.log("Error while checking auth token: ", error.message);
+            return res.status(401).json({
+                success: false,
+                message: "No token provided.",
+            });
+        }
+    } catch (error) {
+        console.log("Error while checking user is logged in: ", error.message);
+    }
 }
-
 export const isAdmin = function (req, res, next) {
 	try {
 		if (req.user.role !== "admin") {
@@ -130,6 +121,18 @@ export async function comparePassword(password, hashedPassword) {
 	return await bcrypt.compare(password, hashedPassword);
 }
 
+export function requireRole(...allowedRoles) {
+    return function (req, res, next) {
+        if (!allowedRoles.includes(req.user.role)) {
+            return res.status(403).json({
+                success: false,
+                message: `Access denied. Requires role: ${allowedRoles.join(" or ")}.`,
+            });
+        }
+        next();
+    };
+}
+
 export default {
 	generateToken,
 	verifyToken,
@@ -137,4 +140,5 @@ export default {
 	isAdmin,
 	authenticateToken,
 	comparePassword,
+	requireRole
 };

@@ -8,6 +8,27 @@ import {
 	setAuthCookie
 } from "../middlewares/auth.middleware.js";
 
+export async function userCurrent(req, res) {
+    try {
+        return res.status(200).json({
+            success: true,
+            data: {
+                id: req.user.id,
+                username: req.user.username,
+                email: req.user.email,
+                phone: req.user.phone,
+                role: req.user.role,
+            },
+        });
+    } catch (error) {
+        console.log("Error while fetching current user: ", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Error while fetching current user.",
+        });
+    }
+}
+
 export async function userProfile(req, res) {
 	try {
 		const isSelf = String(req.user.id) === String(req.params.id);
@@ -32,7 +53,7 @@ export async function userProfile(req, res) {
 		return res.status(200).json({
 			success: true,
 			message: "Hello there user",
-			userInfo: { userId: user.id, userEmail: user.email },
+			data: { userId: user.id, userEmail: user.email },
 		});
 	} catch (error) {
 		console.log("Error while checking user profile: ", error.message);
@@ -83,7 +104,7 @@ export async function userSignup(req, res) {
 		return res.status(201).json({
 			success: true,
 			message: "User registered successfully.",
-			user: {
+			data: {
 				userId: newUser.id,
 				userPhone: newUser.phone,
 				userEmail: newUser.email,
@@ -157,7 +178,7 @@ export async function userLogin(req, res) {
 		return res.status(200).json({
 			success: true,
 			message: "User Logged in succesfully !.",
-			user: {
+			data: {
 				id: user.id,
 				username: user.username,
 				email: user.email,
@@ -211,7 +232,7 @@ export async function userUpdate(req, res) {
 		return res.status(200).json({
 			success: true,
 			message: "User updated  succesfully !.",
-			user: {
+			data: {
 				id: user.id,
 				username: user.username,
 				email: user.email,
