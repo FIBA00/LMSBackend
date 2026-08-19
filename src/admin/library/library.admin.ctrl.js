@@ -4,7 +4,11 @@ import { libraries } from "../../db/models.js";
 
 export async function getAllLibrary(req, res) {
 	try {
-		const allLibraries = await db.select().from(libraries);
+		const { status } = req.query;
+		const allLibraries = status
+			? await db.select().from(libraries).where(eq(libraries.status, status))
+			: await db.select().from(libraries);
+
 		return res.status(200).json({
 			success: true,
 			message: "Successfully retrieved libraries.",
@@ -18,7 +22,6 @@ export async function getAllLibrary(req, res) {
 		});
 	}
 }
-
 export async function getLibrary(req, res) {
 	try {
 		const [library] = await db
