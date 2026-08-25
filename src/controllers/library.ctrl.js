@@ -68,6 +68,58 @@ export async function getUserLibraries(req, res) {
 	}
 }
 
+export async function getUserLibraryWithId(req, res) {
+	try {
+		const userId = req.user.id;
+		const libraryId = req.params.id;
+
+		const userLibrary = await db
+			.select({
+				id: libraries.id,
+				name: libraries.name,
+				ownerId: libraries.ownerId,
+				status: libraries.status,
+				address: libraries.address,
+				proofDocumentUrl: libraries.proofDocumentUrl,
+				reviewedBy: libraries.reviewedBy,
+				reviewedAt: libraries.reviewedAt,
+				createdAt: libraries.createdAt,
+			})
+			.from(libraries)
+			.where(
+				and(eq(libraries.id, libraryId), eq(libraries.ownerId, userId)),
+			);
+
+		if (!userLibrary) {
+			return res.status(404).json({
+				success: false,
+				message: "Getting library failed.",
+			});
+		}
+		return res.status(201).json({
+			success: true,
+			message: "Library created successfully, wait for approval",
+			data: {
+				id: userLibrary.id,
+				name: userLibrary.name,
+				ownerId: userLibrary.ownerId,
+				status: userLibrary.status,
+				address: userLibrary.address,
+				proofDocumentUrl: userLibrary.proofDocumentUrl,
+				reviewedBy: userLibrary.reviewedBy,
+				reviewedAt: userLibrary.reviewedAt,
+				createdAt: userLibrary.createdAt,
+			},
+		});
+	} catch (error) {
+		console.error("Error while getting library with id: ", error.message);
+		return res.status(500).json({
+			success: false,
+			message: "Server error while getting user library.",
+		});
+	}
+}
+
 export async function createUserLibrary(req, res) {
 	try {
 		const userid = req.user.id;
@@ -118,14 +170,27 @@ export async function updateUserLibrary(req, res) {
 		const [library] = await db
 			.update(libraries)
 			.set({ name: req.body.name, address: req.body.address })
-			.where(and(eq(libraries.id, libraryId), eq(libraries.ownerId, userId)))
+			.where(
+				and(eq(libraries.id, libraryId), eq(libraries.ownerId, userId)),
+			)
 			.returning();
 
 		if (!library) {
-			return res.status(404).json({ success: false, message: "Library not found or not owned by you !." });
+			return res
+				.status(404)
+				.json({
+					success: false,
+					message: "Library not found or not owned by you !.",
+				});
 		}
 
-		return res.status(200).json({ success: true, message: "Successfully updated library.", data: library });
+		return res
+			.status(200)
+			.json({
+				success: true,
+				message: "Successfully updated library.",
+				data: library,
+			});
 	} catch (error) {
 		console.error("error while managing library: ", error.message);
 		return res.status(500).json({
@@ -142,7 +207,9 @@ export async function deleteUserLibrary(req, res) {
 
 		const [deleted] = await db
 			.delete(libraries)
-			.where(and(eq(libraries.id, libraryId), eq(libraries.ownerId, userId)))
+			.where(
+				and(eq(libraries.id, libraryId), eq(libraries.ownerId, userId)),
+			)
 			.returning();
 
 		if (!deleted) {
